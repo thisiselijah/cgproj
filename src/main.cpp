@@ -1,3 +1,70 @@
+/**
+ * @file main.cpp
+ * @brief Main file for the particle system project.
+ * 
+ * This file contains the main function and the main loop for the particle system project.
+ * It initializes the GLFW window, GLEW, and sets up the camera, background, and particle system.
+ * It also handles input callbacks for key presses and mouse button presses.
+ * 
+ * @author Chao Lin Hsu
+ * @date 2025
+ */
+
+ /**
+    * @brief Key callback function to handle key press events.
+    * 
+    * This function is called whenever a key is pressed or released.
+    * It closes the window if the Escape or Q key is pressed.
+    * 
+    * @param window The GLFW window.
+    * @param key The key that was pressed or released.
+    * @param scancode The system-specific scancode of the key.
+    * @param action The action (press or release).
+    * @param mods Bit field describing which modifier keys were held down.
+    */
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+
+/**
+ * @brief Mouse button callback function to handle mouse button press events.
+ * 
+    * This function is called whenever a mouse button is pressed or released.
+    * It emits particles from the particle system if the left mouse button is pressed.
+    * 
+    * @param window The GLFW window.
+    * @param button The mouse button that was pressed or released.
+    * @param action The action (press or release).
+    * @param mods Bit field describing which modifier keys were held down.
+    */
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
+
+/**
+ * @brief Sets up the input callbacks for the GLFW window.
+ * 
+ * This function sets the key callback and mouse button callback for the GLFW window.
+ */
+void setup_callbacks();
+
+/**
+ * @brief Main loop of the application.
+ * 
+ * This function contains the main loop of the application.
+ * It updates the camera position, computes the MVP matrix, renders the background and particle system,
+ * and handles input events.
+ */
+void mainloop();
+
+/**
+ * @brief Main function of the application.
+ * 
+ * This function initializes the GLFW window, GLEW, and sets up the camera, background, and particle system.
+ * It then enters the main loop of the application.
+ * 
+ * @param argc The number of command-line arguments.
+ * @param argv The command-line arguments.
+ * @return int Returns 0 on success, or -1 on failure.
+ */
+int main(int argc, char **argv);
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -30,46 +97,8 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
     {
         try
         {
-            // // Get cursor position
-            // double xpos, ypos;
-            // glfwGetCursorPos(window, &xpos, &ypos);
-
-            // // Get window size
-            // int width, height;
-            // glfwGetWindowSize(window, &width, &height);
-
-            // // Convert to NDC
-            // float x = (2.0f * xpos) / width - 1.0f;
-            // float y = 1.0f - (2.0f * ypos) / height;
-
-            // // Get current MVP matrices
-            // glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.1f, 100.0f);
-            // glm::mat4 View = camera->viewMatrix;
-            // glm::mat4 Model = glm::mat4(1.0f);
-
-            // // Create inverse MVP
-            // glm::mat4 invMVP = glm::inverse(Projection * View * Model);
-
-            // // Create ray in world space
-            // glm::vec4 rayStart = invMVP * glm::vec4(x, y, -1.0f, 1.0f);
-            // glm::vec4 rayEnd = invMVP * glm::vec4(x, y, 1.0f, 1.0f);
-            // rayStart /= rayStart.w;
-            // rayEnd /= rayEnd.w;
-
-            // // Calculate ray direction
-            // glm::vec3 rayDir = glm::normalize(glm::vec3(rayEnd - rayStart));
-
-            // // Intersect with z=0 plane
-            // float t = -rayStart.z / rayDir.z;
-            // glm::vec3 intersection = glm::vec3(rayStart) + rayDir * t;
-
-            // Emit particles at intersection point
             particleSystem->emit();
 
-            // // Debug output
-            // printf("Click at window: (%f, %f)\n", xpos, ypos);
-            // printf("World intersection: (%f, %f, %f)\n",
-            //        intersection.x, intersection.y, intersection.z);
         }
         catch (const std::exception &e)
         {
@@ -88,9 +117,6 @@ void mainloop()
 {
     setup_callbacks();
 
-    // glm::vec3 position = glm::vec3(5.0f, 5.0f, 10.0f);
-    // glm::vec3 target = glm::vec3(0.0f);
-    // glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     float radius = 10.0f;
     float theta = glm::radians(170.0f);
     float phi = glm::radians(90.0f);
@@ -117,24 +143,27 @@ void mainloop()
         // glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE_MINUS_SRC_ALPHA);
         // glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_SRC_ALPHA);
 
-        // Pass MVP matrix to shader
+        // Pass MVP matrix to background's shader
         GLuint backgroundMatrixID = glGetUniformLocation(background->programID, "MVP");
         glUniformMatrix4fv(backgroundMatrixID, 1, GL_FALSE, &MVP[0][0]);
-        glEnable(GL_DEPTH_TEST);                           // 渲染背景時先開啟深度測試
-        glDepthFunc(GL_ALWAYS);                            // 粒子無視背景深度，顯示在所有物件之上
+        glEnable(GL_DEPTH_TEST);                           
+        glDepthFunc(GL_ALWAYS);                            
         
 
-        // 渲染背景
+        // render background
         background->render();
 
+        // Pass MVP matrix to particle system's shader
         GLuint particleMatrixID = glGetUniformLocation(particleSystem->programID, "MVP");
         // printf("Particle Matrix ID: %d\n", particleMatrixID);
         glUniformMatrix4fv(particleMatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-        glEnable(GL_BLEND);       // 開啟混合模式
-        particleSystem->render(); // 渲染粒子系統
-        glDisable(GL_BLEND);      // 關閉混合模式
+        glEnable(GL_BLEND); 
+        // render particle system      
+        particleSystem->render(); 
+        glDisable(GL_BLEND);     
         particleSystem->update(0.01f);
+
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -143,12 +172,14 @@ void mainloop()
 
 int main(int argc, char **argv)
 {
+    /*---Parse the passing arguments---*/
     if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <Number of particles>\n", argv[0]);
         return -1;
     }
     unsigned int numParticles = std::atoi(argv[1]);
+
     if (!glfwInit())
     {
         fprintf(stderr, "Failed to initialize GLFW\n");

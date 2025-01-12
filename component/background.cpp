@@ -1,5 +1,26 @@
 #include "background.hpp"
 
+/**
+ * @brief Constructs a Background object.
+ * 
+ * This constructor initializes the vertex buffer data for a quad in the xy plane using two triangles.
+ * It also loads the shaders and texture, and sets up the vertex array and buffer objects.
+ * 
+ * Vertex buffer data:
+ * - Two triangles forming a quad in the xy plane with vertices at (-5, -5, 0), (5, -5, 0), (5, 5, 0), and (-5, 5, 0).
+ * 
+ * Shaders:
+ * - Vertex shader: "../shader/background_v.glsl"
+ * - Fragment shader: "../shader/background_f.glsl"
+ * 
+ * Texture:
+ * - "../texture/metal.png"
+ * 
+ * OpenGL setup:
+ * - Generates and binds a vertex array object.
+ * - Generates and binds vertex and UV buffer objects, and uploads the data to the GPU.
+ * - Unbinds the buffer and vertex array objects.
+ */
 Background::Background()
 {
     // Initialize vertex buffer data for a quad in the xy plane using two triangles
@@ -41,6 +62,21 @@ Background::Background()
     glBindVertexArray(0);
 }
 
+/**
+ * @brief Renders the background using OpenGL.
+ * 
+ * This function sets up the necessary OpenGL state and draws the background
+ * using the specified shaders, vertex arrays, and textures.
+ * 
+ * It performs the following steps:
+ * 1. Uses the shader program associated with this background.
+ * 2. Binds the vertex array object.
+ * 3. Enables and sets up the vertex attribute arrays for position and UV coordinates.
+ * 4. Binds the vertex and UV buffers.
+ * 5. Sets the texture uniform and binds the texture.
+ * 6. Draws the background as a quad using GL_TRIANGLES.
+ * 7. Disables the vertex attribute arrays and unbinds the buffers and vertex array.
+ */
 void Background::render()
 {
     glUseProgram(this->programID);
@@ -53,12 +89,12 @@ void Background::render()
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
     glVertexAttribPointer(
-        1,        // UV屬性位置
-        2,        // UV每個頂點有2個分量
-        GL_FLOAT, // 類型
-        GL_FALSE, // 是否規範化
-        0,        // 間距
-        (void *)0 // 偏移量
+        1,        
+        2,        
+        GL_FLOAT, 
+        GL_FALSE, 
+        0,        
+        (void *)0 
     );
 
     GLuint textureLocation = glGetUniformLocation(programID, "Texture");
