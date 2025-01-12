@@ -1,5 +1,15 @@
 #include "particlesys.hpp"
 
+/**
+ * @brief Constructs a ParticleSystem with a specified number of particles.
+ * 
+ * This constructor initializes the particle system by reserving space for the particles,
+ * loading shaders and textures, and setting up the necessary OpenGL buffers and attributes.
+ * 
+ * @param numParticles The number of particles to initialize in the system.
+ * 
+ * @throws std::exception If any error occurs during initialization.
+ */
 ParticleSystem::ParticleSystem(unsigned int numParticles)
 {
     try
@@ -44,6 +54,15 @@ ParticleSystem::ParticleSystem(unsigned int numParticles)
     // this->emit();
 }
 
+/**
+ * @brief Emits particles by resizing the particle container and respawning each particle.
+ * 
+ * This function resizes the particle container to hold the specified number of particles
+ * and then respawns each particle. If an exception occurs during this process, it catches
+ * the exception and outputs the error message to the standard error stream.
+ * 
+ * @throws std::exception If an error occurs during resizing or respawning particles.
+ */
 void ParticleSystem::emit()
 {
 
@@ -61,6 +80,16 @@ void ParticleSystem::emit()
     }
 }
 
+/**
+ * @brief Updates the state of all particles in the system.
+ * 
+ * This function iterates through all particles in the system, updating their
+ * velocity, position, and lifetime based on the elapsed time (dt). It also
+ * updates the color of each particle based on its remaining lifetime. If a
+ * particle's lifetime reaches zero, it is respawned.
+ * 
+ * @param dt The elapsed time since the last update, in seconds.
+ */
 void ParticleSystem::update(float dt)
 {
     for (int i = this->particles.size() - 1; i >= 0; i--)
@@ -89,6 +118,23 @@ void ParticleSystem::update(float dt)
     }
 }
 
+/**
+ * @brief Renders the particle system.
+ * 
+ * This function uses the OpenGL shader program to render each particle in the particle system.
+ * It sets the necessary uniform variables for size, color, offset, and texture, and then draws
+ * the particles using the specified vertex array object (VAO) and texture.
+ * 
+ * The function performs the following steps:
+ * 1. Uses the shader program specified by `programID`.
+ * 2. Retrieves the locations of the uniform variables for size, color, offset, and texture.
+ * 3. Binds the vertex array object (VAO) and enables the vertex attribute array.
+ * 4. Iterates over each particle in the `particles` container and sets the uniform variables
+ *    for size, color, offset, and texture.
+ * 5. Activates the texture unit and binds the texture.
+ * 6. Draws the particle using `glDrawArrays` with the `GL_TRIANGLES` mode.
+ * 7. Disables the vertex attribute array and unbinds the vertex array object (VAO).
+ */
 void ParticleSystem::render()
 {
 
@@ -123,6 +169,17 @@ void ParticleSystem::render()
     glBindVertexArray(0);
 }
 
+/**
+ * @brief Respawns a particle with randomized properties.
+ * 
+ * This function resets the given particle's position, velocity, color, size, and lifetime
+ * to new randomized values within specified ranges. The particle's velocity is generated
+ * using a spherical random distribution and is adjusted to ensure a positive z-component.
+ * The color is set to a random shade of red, the size is set to a small random value, and
+ * the lifetime is set to a random duration between 2.0 and 3.0 seconds.
+ * 
+ * @param p Reference to the particle to be respawned.
+ */
 void ParticleSystem::respawn(Particle &p)
 {
     p.position = glm::vec3(0.0f, 0.0f, 0.0f);
